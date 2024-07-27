@@ -29,6 +29,10 @@ class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = "__all__"
+class EpreuveSerialier(serializers.ModelSerializer):
+    class Meta:
+        model = Epreuve
+        fields = "__all__"
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
