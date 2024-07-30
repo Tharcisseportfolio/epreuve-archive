@@ -18,21 +18,27 @@ class GradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grade
         fields = "__all__"
-
-class CourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = "__all__"
-
-
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = "__all__"
-class EpreuveSerialier(serializers.ModelSerializer):
+
+class CourseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Course
+        fields = ['id', 'name', 'tag', 'grade', 'section']
+        
+    section = SectionSerializer(read_only=True)
+    grade = GradeSerializer(read_only=True)
+
+    
+
+class EpreuveSerializer(serializers.ModelSerializer):
+    course = CourseSerializer(read_only=True)
     class Meta:
         model = Epreuve
-        fields = "__all__"
+        fields = ['id', 'name', 'type', 'link', 'date', 'course']
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:

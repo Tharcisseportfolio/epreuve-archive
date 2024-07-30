@@ -25,10 +25,10 @@ class Section(models.Model):
 class Course(models.Model):
     class Meta:
         ordering =['name']
-
+        
+    name = models.CharField(max_length=255)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='courses')
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='courses')
-    name = models.CharField(max_length=255)
     tag = models.CharField(max_length=4000, null=True, default="")
 
     def __str__(self):

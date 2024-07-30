@@ -52,3 +52,4 @@ returning a query set for the course: <QuerySet [<Course: Biology thematique>]>
     - returning : <Grade: 3ème Post Fondamental(Finalistes)>
 
 ....EVERYTHING ELSE CAN BE DONE THE SAME WAY
+

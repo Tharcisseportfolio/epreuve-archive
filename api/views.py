@@ -38,12 +38,12 @@ class SectionView(viewsets.ModelViewSet):
 
 class EpreuveView(viewsets.ModelViewSet):
     queryset = Epreuve.objects.all()
-    serializer_class = EpreuveSerialier
+    serializer_class = EpreuveSerializer
     permission_classes = []
 
 class EpreuveListView(generics.ListAPIView):
     query = Epreuve.objects.all()
-    serializer_class = EpreuveSerialier
+    serializer_class = EpreuveSerializer
     permission_classes = []
 
     def get_queryset(self):
