@@ -74,3 +74,4 @@ uritemplate==4.1.1
 urllib3==2.2.1
 virtualenv==20.26.2
 wcwidth==0.2.13
+gunicorn==20.1.0
