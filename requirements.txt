@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 annotated-types==0.7.0
 asttokens==2.4.1
 async-timeout==4.0.3
@@ -66,3 +67,15 @@ urllib3==2.2.1
 virtualenv==20.26.2
 wcwidth==0.2.13
 gunicorn==20.1.0
+=======
+asgiref
+Django
+django-cors-headers
+djangorestframework
+djangorestframework-simplejwt
+PyJWT
+pytz
+sqlparse
+psycopg2-binary
+python-dotenv
+>>>>>>> 421473dc97ffcc122af4ac6c5c97f9b4834b7849

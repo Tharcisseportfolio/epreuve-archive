@@ -49,12 +49,12 @@ class EpreuveListView(generics.ListAPIView):
     def get_queryset(self):
         epreuves = Epreuve.objects.all()
         return epreuves
-    def post(self):
-        return self
     
-    def delete(self):
-        return self
-    
+class ExetatViewSet(viewsets.ModelViewSet):
+    queryset = Exetat.objects.all()
+    serializer_class = ExetatSerializer
+    permission_classes = []
+
 class FileUploadView(viewsets.ModelViewSet):
     queryset = File.objects.all()
     serializer_class = DocumentSerializer
