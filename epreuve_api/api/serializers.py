@@ -38,6 +38,7 @@ class EpreuveSerializer(serializers.ModelSerializer):
     course = CourseSerializer(read_only=True)
     class Meta:
         model = Epreuve
+        fields = ['id', 'name','link', 'type','date', 'course']
         
 
 class ExetatSerializer(serializers.ModelSerializer):
