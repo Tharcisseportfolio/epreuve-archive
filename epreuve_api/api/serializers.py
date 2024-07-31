@@ -2,6 +2,11 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import *
 
+class EndpointSerializer(serializers.Serializer):
+    url = serializers.CharField()
+    name = serializers.CharField()
+    
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

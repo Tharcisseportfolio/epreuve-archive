@@ -1,12 +1,40 @@
 from django.contrib.auth.models import User
+from django.urls import get_resolver
 from rest_framework import generics
-from .serializers import *
 from rest_framework.permissions import  AllowAny
-from api.models import *
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.response import Response
-# from rest_framework.views import APIView
+from rest_framework import status,permissions
+from .serializers import *
+from api.models import *
 
+# views.py
+from django.urls import get_resolver, reverse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+
+class EndpointListView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        urlconf = get_resolver().url_patterns
+        endpoints = self.get_urls(urlconf)
+        return Response(endpoints, status=status.HTTP_200_OK)
+
+    def get_urls(self, urlpatterns, parent_pattern=''):
+        endpoints = []
+        for pattern in urlpatterns:
+            if hasattr(pattern, 'url_patterns'):
+                endpoints += self.get_urls(pattern.url_patterns, parent_pattern + pattern.pattern.regex.pattern)
+            else:
+                url = parent_pattern + pattern.pattern.regex.pattern
+                name = pattern.name or ''
+                if 'admin/' not in url:  # Exclude the admin endpoint
+                    endpoints.append({'url': url, 'name': name})
+        return endpoints
+    
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
