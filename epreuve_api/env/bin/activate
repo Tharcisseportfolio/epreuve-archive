@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/tharapi/epreuve-archive/epreuve_api/env"
+VIRTUAL_ENV="/Users/tharcisse/Desktop/Files/Darcy-Tharcisse/epreuve-archive/epreuve_api/env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
