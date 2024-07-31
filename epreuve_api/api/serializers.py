@@ -2,6 +2,13 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import *
 
+"""
+*****************Description****************
+
+@variable starts with _, it is a relatable field model to be use it in the post 
+example:
+    _grade : It is a primary key for the model grade which is related to the model
+"""
 class EndpointSerializer(serializers.Serializer):
     url = serializers.CharField()
     name = serializers.CharField()
@@ -28,26 +35,34 @@ class SectionSerializer(serializers.ModelSerializer):
         model = Section
         fields = "__all__"
 
+
 class CourseSerializer(serializers.ModelSerializer):
+    section = SectionSerializer(read_only=True)
+    grade = GradeSerializer(read_only=True)
+    
+    #the _grade is the primary key for grade and course models
+    # the _section is the primary key for grade and course models
+    
+    _section = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all(), source='section', write_only=True)
+    _grade = serializers.PrimaryKeyRelatedField(queryset=Grade.objects.all(), source='grade', write_only=True)
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'tag', 'grade', 'section']
-        
-    section = SectionSerializer(read_only=True)
-    grade = GradeSerializer(read_only=True)
+        fields = ['id', 'name',  '_grade','_section','tag', 'grade', 'section']
 
     
 
 class EpreuveSerializer(serializers.ModelSerializer):
     course = CourseSerializer(read_only=True)
+    _course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), source='course', write_only=True)
     class Meta:
         model = Epreuve
-        fields = ['id', 'name','link', 'type','date', 'course']
+        fields = ['id', 'name','_course','link', 'type','date', 'course']
         
 
 class ExetatSerializer(serializers.ModelSerializer):
     course = CourseSerializer(read_only=True)
+    _course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), source='course', write_only=True)
     class Meta:
         model = Exetat
         fields = ['id', 'name','link', 'type','date', 'course']

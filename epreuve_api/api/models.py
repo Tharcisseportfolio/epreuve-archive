@@ -35,6 +35,7 @@ class Course(models.Model):
         return self.name
 
 class Epreuve(models.Model):
+    
     class Meta:
         ordering =['date']
 
