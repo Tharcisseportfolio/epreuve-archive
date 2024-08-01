@@ -73,5 +73,13 @@ class DocumentSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+#Email sending serialisers
+class SendEmailSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = SendEmail
+            fields = ['id','subject', 'email', 'message', 'sent_at']
 
-    
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ['id','subject', 'email', 'message', 'received_at']

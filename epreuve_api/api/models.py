@@ -1,6 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class SendEmail(models.Model):
+
+    class Meta:
+        ordering =['sent_at']
+
+    subject = models.CharField(max_length=100)
+    message = models.TextField()
+    email = models.EmailField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.subject
+
+
+class ContactMessage(models.Model):
+    class Meta:
+        ordering = ['received_at']
+    subject = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.subject
+
 class Grade(models.Model):
     class Meta:
         ordering =['name']

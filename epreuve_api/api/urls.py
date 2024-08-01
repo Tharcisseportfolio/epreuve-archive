@@ -1,6 +1,7 @@
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
 from api.views import *
+
 router = DefaultRouter()
 router.register(r'file-upload', FileUploadView, basename='file-upload')
 router.register(r'file-list', FileListView, basename='file-list')
@@ -9,7 +10,8 @@ router.register(r'exetats',ExetatViewSet,basename='exetats')
 router.register(r'courses',CourseView,basename='courses')
 router.register(r'grades',GradeView,basename='grades')
 router.register(r'sections',SectionView,basename='sections')
-
+router.register(r'send-email', SendEmailViewSet, basename='send-email')
+router.register(r'contact', ContactViewSet, basename='contact')
 #the viewset allows id access easily////
 
 urlpatterns = [
