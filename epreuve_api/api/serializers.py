@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import *
+# from .models import *
+from .models import Test, Course, Section,Grade,SendEmail,ContactMessage
 
 """
 *****************Description****************
@@ -9,10 +10,6 @@ from .models import *
 example:
     _grade : It is a primary key for the model grade which is related to the model
 """
-class EndpointSerializer(serializers.Serializer):
-    url = serializers.CharField()
-    name = serializers.CharField()
-    
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,48 +26,49 @@ class UserSerializer(serializers.ModelSerializer):
 class GradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grade
-        fields = "__all__"
-class SectionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Section
-        fields = "__all__"
+        fields = ['id','grade']
 
+class TestSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
+    section = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all())
+
+    class Meta:
+        model = Test
+        fields = ['id', 'test','link','course', 'section', 'year']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['course'] = instance.course.course  # Assuming 'name' is the field in Course model
+        representation['section'] = instance.section.section  # Assuming 'name' is the field in Section model
+        return representation
 
 class CourseSerializer(serializers.ModelSerializer):
-    section = SectionSerializer(read_only=True)
-    grade = GradeSerializer(read_only=True)
-    
-    #the _grade is the primary key for grade and course models
-    # the _section is the primary key for grade and course models
-    
-    _section = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all(), source='section', write_only=True)
-    _grade = serializers.PrimaryKeyRelatedField(queryset=Grade.objects.all(), source='grade', write_only=True)
+    tests = TestSerializer(many=True, read_only=True)
+    section = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all())
+    grade = serializers.PrimaryKeyRelatedField(queryset=Grade.objects.all())
 
     class Meta:
         model = Course
-        fields = ['id', 'name',  '_grade','_section','tag', 'grade', 'section']
+        fields = ['id', 'grade','course','section', 'tests']
 
-    
-
-class EpreuveSerializer(serializers.ModelSerializer):
-    course = CourseSerializer(read_only=True)
-    _course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), source='course', write_only=True)
-    class Meta:
-        model = Epreuve
-        fields = ['id', 'name','_course','link', 'type','date', 'course']
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['section'] = instance.section.section
+        representation['grade'] = instance.grade.grade
         
+        return representation
 
-class ExetatSerializer(serializers.ModelSerializer):
-    course = CourseSerializer(read_only=True)
-    _course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), source='course', write_only=True)
+class SectionSerializer(serializers.ModelSerializer):
+    courses = CourseSerializer(many=True, read_only=True)
+
     class Meta:
-        model = Exetat
-        fields = ['id', 'name','link', 'type','date', 'course']
-        
-class DocumentSerializer(serializers.ModelSerializer):
+        model = Section
+        fields = ['id', 'section', 'courses']
+
+class SectionListSerializer(serializers.ModelSerializer):
     class Meta:
-        model = File
-        fields = "__all__"
+        model = Section
+        fields = ['section']
 
 
 #Email sending serialisers

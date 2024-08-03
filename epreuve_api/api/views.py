@@ -1,19 +1,17 @@
 from django.contrib.auth.models import User
-from django.urls import get_resolver
-from rest_framework import generics
-from rest_framework.permissions import  AllowAny
-from django.urls import get_resolver
-from rest_framework import status, permissions
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.views import APIView
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.core.mail import send_mail
-from django.core.mail import EmailMessage
-from django.conf import settings
+from rest_framework import status
+from rest_framework import permissions
+from rest_framework import generics
+from django.db.models import Q
+from epreuve_api import settings
 
-from .serializers import *
-from api.models import *
-
+from .models import Section, Course, Test,Grade,SendEmail,ContactMessage
+from django.core.mail import send_mail, EmailMessage
+from .serializers import SectionSerializer, CourseSerializer, TestSerializer,SectionListSerializer,GradeSerializer,SendEmailSerializer,ContactSerializer,UserSerializer
 
 class SendEmailViewSet(viewsets.ModelViewSet):
     queryset = SendEmail.objects.all()
@@ -24,8 +22,6 @@ class SendEmailViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             self.perform_create(serializer) # save the data to the database...
-
-            
             subject = serializer.validated_data['subject'] #the email subject
             email = serializer.validated_data['email'] # the email address we setup notification.epreuve@gmail.com
             message = serializer.validated_data['message'] # the message we want to send to clients 
@@ -80,111 +76,111 @@ class ContactViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return Response({'message': 'This endpoint is for sending contact messages via POST requests.'}, status=status.HTTP_200_OK)
 
-class EndpointListView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def get(self, request, *args, **kwargs):
-        urlconf = get_resolver().url_patterns
-        endpoints = self.get_urls(urlconf)
-        return Response(endpoints, status=status.HTTP_200_OK)
-
-    def get_urls(self, urlpatterns, parent_pattern=''):
-        endpoints = []
-        for pattern in urlpatterns:
-            if hasattr(pattern, 'url_patterns'):
-                endpoints += self.get_urls(pattern.url_patterns, parent_pattern + pattern.pattern.regex.pattern)
-            else:
-                url = parent_pattern + pattern.pattern.regex.pattern
-                name = pattern.name or ''
-                if 'admin/' not in url:  # Exclude the admin endpoint
-                    endpoints.append({'url': url, 'name': name})
-        return endpoints
-    
+  
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
 
-class ListUserView(generics.ListAPIView):
-    query = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = []
-
-    def get_queryset(self):
-        users = User.objects.all()
-        return users
-    
-class GradeView(viewsets.ModelViewSet):
+class GradeViewSet(viewsets.ModelViewSet):
     queryset = Grade.objects.all()
     serializer_class = GradeSerializer
     permission_classes = []
-
-class CourseView(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
-    serializer_class = CourseSerializer
-    permission_classes = []
-
-class SectionView(viewsets.ModelViewSet):
+    
+class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
     permission_classes = []
 
-class EpreuveView(viewsets.ModelViewSet):
-    queryset = Epreuve.objects.all()
-    serializer_class = EpreuveSerializer
-    permission_classes = []
-
-class EpreuveListView(generics.ListAPIView):
-    query = Epreuve.objects.all()
-    serializer_class = EpreuveSerializer
-    permission_classes = []
-
-    def get_queryset(self):
-        epreuves = Epreuve.objects.all()
-        return epreuves
+    @action(detail=False, methods=['get'], url_path='(?P<query>[^/.]+)')
+    def search_sections(self, request, query):
+        sections = Section.objects.filter(section__iexact=query)
+        if not sections.exists():
+            sections = Section.objects.filter(section__icontains=query)
+        serializer = SectionSerializer(sections, many=True)
+        return Response(serializer.data)
     
-class ExetatViewSet(viewsets.ModelViewSet):
-    queryset = Exetat.objects.all()
-    serializer_class = ExetatSerializer
+
+    @action(detail=False, methods=['get'], url_path='(?P<name>[^/.]+)/(?P<course_name>[^/.]+)')
+    def tests_by_course(self, request, name, course_name):
+        try:
+            section = Section.objects.get(section__icontains=name)
+            courses = Course.objects.filter(course__icontains=course_name, section=section)
+            if courses.count() == 0:
+                return Response({'error': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
+            elif courses.count() == 1:
+                course = courses.first()
+                serializer = CourseSerializer(course)
+            else:
+                serializer = CourseSerializer(courses, many=True)
+            return Response(serializer.data)
+        except Section.DoesNotExist:
+            return Response({'error': 'Section not found'}, status=status.HTTP_404_NOT_FOUND)
+    @action(detail=False, methods=['get'], url_path='(?P<name>[^/.]+)/(?P<course_name>[^/.]+)/(?P<test>[^/.]+)')
+    def get_test(self, request, name, course_name, test):
+        search_query = test.lower()
+        if search_query == 'test' or search_query == 'epreuves':
+            course = Course.objects.filter(course__icontains=course_name).first()
+            tests = Test.objects.filter(course__course__icontains=course_name)
+            if not tests.exists():
+                return Response({'error': f"No test fot {course}"}, status=status.HTTP_404_NOT_FOUND)
+            
+            serializer = TestSerializer(tests, many=True)
+            return Response(serializer.data)
+        return Response({'error': 'Test not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+  
+
+class CourseViewSet(viewsets.ModelViewSet):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
     permission_classes = []
 
-class FileUploadView(viewsets.ModelViewSet):
-    queryset = File.objects.all()
-    serializer_class = DocumentSerializer
+    @action(detail=False, methods=['get'], url_path='(?P<query>[^/.]+)')
+    def search_courses(self, request, query):
+        courses = Course.objects.filter(course__iexact=query)
+        if not courses.exists():
+            query_words = query.split()
+            q_objects = Q()
+            for word in query_words:
+                q_objects |= Q(course__icontains=word)
+            courses = Course.objects.filter(q_objects).distinct()
+        serializer = CourseSerializer(courses, many=True)
+        return Response(serializer.data)
+
+
+class TestViewSet(viewsets.ModelViewSet):
+    queryset = Test.objects.all()
+    serializer_class = TestSerializer
     permission_classes = []
 
-class FileListView(viewsets.ModelViewSet):
-    queryset = File.objects.all()
-    serializer_class = DocumentSerializer
+    @action(detail=False, methods=['get'], url_path='(?P<query>[^/.]+)')
+    def search_tests(self, request, query):
+        tests = Test.objects.filter(test__iexact=query)
+        if not tests.exists():
+            query_words = query.split()
+            q_objects = Q()
+            for word in query_words:
+                q_objects |= Q(test__icontains=word) | Q(course__course__icontains=word) | Q(section__section__icontains=word)
+            tests = Test.objects.filter(q_objects).distinct()
+        serializer = TestSerializer(tests, many=True)
+        return Response(serializer.data)
+
+class SectionViewList(viewsets.ViewSet):
+    queryset = Section.objects.all()
+    serializer_class = SectionListSerializer
     permission_classes = []
+    def list(self, request):
+        queryset = Section.objects.all()
+        for query in queryset:
+            print(query)
 
-class NinthGradeCoursesView(generics.ListAPIView):
-    query = Grade.objects.all()
-    serializer_class = GradeSerializer
-    permission_classes = []
+        serializer = SectionListSerializer(queryset, many=True)
+        return Response(serializer.data)
 
-    def get_queryset(self):
-
-        results = Grade.objects.filter(name='9')
-        for grade in results:
-            ninth_courses = Course.objects.filter(grade=grade.id)
-            if ninth_courses:
-                for course in ninth_courses:
-                    print("The night grade :",course.name)
-                return ninth_courses
-
-class ThirdGradeCoursesView(generics.ListAPIView):
-    query = Grade.objects.all()
-    serializer_class = GradeSerializer
-    permission_classes = []
-
-    def get_queryset(self):
-
-        results = Grade.objects.filter(name='3')
-        for grade in results:
-            third_courses = Course.objects.filter(grade=grade.id)
-            if third_courses:
-                for course in third_courses:
-                    print("The thirst post fundemental grade :",course.name)
-                return third_courses
- 
+    def retrieve(self, request, pk=None):
+        queryset = Section.objects.all()
+        section = get_object_or_404(queryset, pk=pk)
+        serializer = SectionListSerializer(section)
+        return Response(serializer.data)
+    

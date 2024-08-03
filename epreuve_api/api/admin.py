@@ -1,48 +1,40 @@
 from django.contrib import admin
-from api.models import Course, Epreuve, Exetat, File, Grade, Section,SendEmail,ContactMessage
+from api.models import Course,Grade,Section,Test,SendEmail,ContactMessage
 
-class CourseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'grade', 'section')
-    list_filter = ('grade', 'section')
-    search_fields = ('name', 'grade', 'section')
+
+@admin.register(SendEmail)
 class SendEmailAdmin(admin.ModelAdmin):
     list_display = ('subject', 'email', 'message', 'sent_at')
     list_filter = ('sent_at',)
     search_fields = ('subject', 'email', 'message', 'sent_at')
 
+@admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ('subject', 'email', 'message', 'received_at')
     list_filter = ('received_at',)
     search_fields = ('subject', 'email', 'message', 'received_at')
 
-class SectionAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
-
+@admin.register(Grade)
 class GradeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
+    list_display = ['id','grade']
+    list_filter = ['grade']
+    search_fields = ['grade']
 
-class EpreuveAdmin(admin.ModelAdmin):
-    list_display = ('name', 'course', 'link','type','date')
-    list_filter = ('course', 'date')
-    search_fields = ('name', 'course', 'type','date')
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ['id','course', 'grade', 'section']
+    list_filter = ['grade', 'course','section']
+    search_fields = ['course', 'grade', 'section']
 
-class ExetatAdmin(admin.ModelAdmin):
-    list_display = ('name', 'course', 'link','type', 'date')
-    list_filter = ('course', 'date')
-    search_fields = ('name', 'course',type, 'date')
+@admin.register(Section)
+class SectionAdmin(admin.ModelAdmin):
+    list_display = ['id','section']
+    list_filter = ['section']
+    search_fields = ['section']
 
-class FileAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'link')
-    list_filter = ('type', 'link')
-    search_fields = ('name','type', 'link')
+@admin.register(Test)
+class TestAdmin(admin.ModelAdmin):
+    list_display = ['id','course','section','test','link','year']
+    list_filter = ['course','section','test','link','year']
+    search_fields = ['course','section','test','link','year']
 
-admin.site.register(SendEmail, SendEmailAdmin)
-admin.site.register(ContactMessage, ContactMessageAdmin)
-admin.site.register(Grade, GradeAdmin)
-admin.site.register(Course, CourseAdmin)
-admin.site.register(Section, SectionAdmin)
-admin.site.register(Epreuve, EpreuveAdmin)
-admin.site.register(Exetat, ExetatAdmin)
-admin.site.register(File, FileAdmin)

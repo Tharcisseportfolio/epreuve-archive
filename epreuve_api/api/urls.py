@@ -1,25 +1,21 @@
-from django.urls import path,include
+from django.urls import include, path, re_path
 from rest_framework.routers import DefaultRouter
-from api.views import *
+from .views import SectionViewSet, CourseViewSet, TestViewSet,SectionViewList,GradeViewSet,SendEmailViewSet,ContactViewSet
 
 router = DefaultRouter()
-router.register(r'file-upload', FileUploadView, basename='file-upload')
-router.register(r'file-list', FileListView, basename='file-list')
-router.register(r'epreuves',EpreuveView,basename='epreuves')
-router.register(r'exetats',ExetatViewSet,basename='exetats')
-router.register(r'courses',CourseView,basename='courses')
-router.register(r'grades',GradeView,basename='grades')
-router.register(r'sections',SectionView,basename='sections')
+router.register(r'sections', SectionViewSet)
+router.register(r'courses', CourseViewSet)
+router.register(r'epreuves', TestViewSet)
+router.register(r'grades', GradeViewSet)
+router.register(r'sections-list', SectionViewList,basename='section-list')
+
 router.register(r'send-email', SendEmailViewSet, basename='send-email')
 router.register(r'contact', ContactViewSet, basename='contact')
-#the viewset allows id access easily////
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('api/9/courses/', NinthGradeCoursesView.as_view(), name='9-courses/'),
-    path('api/3/courses/', ThirdGradeCoursesView.as_view(), name='3-courses/'),
-    path('api/users/',ListUserView.as_view(),name='users'),
-    path('api/epreuve-list',EpreuveListView.as_view(),name='epreuve-list')
-
+    re_path(r'^api/sections/(?P<query>[^/.]+)/$', SectionViewSet.as_view({'get': 'search_sections'}), name='search-sections'),
+    re_path(r'^api/courses/(?P<query>[^/.]+)/$', CourseViewSet.as_view({'get': 'search_courses'}), name='search-courses'),
+    re_path(r'^api/tests/(?P<query>[^/.]+)/$', TestViewSet.as_view({'get': 'search_tests'}), name='search-tests'),
 ]
 

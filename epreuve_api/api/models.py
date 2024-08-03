@@ -18,6 +18,7 @@ class SendEmail(models.Model):
 class ContactMessage(models.Model):
     class Meta:
         ordering = ['received_at']
+
     subject = models.CharField(max_length=100)
     email = models.EmailField()
     message = models.TextField()
@@ -27,89 +28,42 @@ class ContactMessage(models.Model):
         return self.subject
 
 class Grade(models.Model):
-    class Meta:
-        ordering =['name']
-
-    CHOICES = (
-        ('3', '3ème Post Fondamental(Finalistes)'),
-        ('9', '9ème Fondemental'),
+    Grade_Choices = (
+        ("3",'3ème Post Fondemental'),
+        ('9','9è Fondemental')
     )
-    name = models.CharField(max_length=255, choices=CHOICES, unique=True)
+    grade = models.CharField(max_length=40,choices=Grade_Choices,null=True)
 
     def __str__(self):
-        return self.get_name_display()
+        return self.grade
 
 class Section(models.Model):
-    class Meta:
-        ordering =['name']
-    name = models.CharField(max_length=255, unique=True)
+    section = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.name
+        return self.section
 
 class Course(models.Model):
-    class Meta:
-        ordering =['name']
-        
-    name = models.CharField(max_length=255)
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='courses')
-    grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='courses')
-    tag = models.CharField(max_length=4000, null=True, default="")
+    grade  = models.ForeignKey(Grade,related_name='courses',on_delete=models.DO_NOTHING,null=True)
+    course = models.CharField(max_length=100)
+    section = models.ForeignKey(Section, related_name='courses', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.course
 
-class Epreuve(models.Model):
-    
-    class Meta:
-        ordering =['date']
+class Test(models.Model):
 
     DOC_TYPES = (
         ('Q', 'Questionnaire'),
         ('A', 'Answers'),
     )
-    
-    
-        
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='epreuves')
-    name = models.CharField(max_length=255)
+
+    course = models.ForeignKey(Course, related_name='tests', on_delete=models.CASCADE,null=True)
+    section = models.ForeignKey(Section, related_name='tests', on_delete=models.CASCADE)
+    test = models.CharField(max_length=100)
+    link = models.FileField(upload_to='documents/',default='')
     type = models.CharField(max_length=1, choices=DOC_TYPES,default='Q')
-    link = models.FileField(upload_to='documents/', default='')
-    date = models.DateField()  # when the epreuve was released
+    year = models.DateField()
 
     def __str__(self):
-        return f'{self.name} ({self.link})'
-
-class Exetat(models.Model):
-    class Meta:
-        ordering =['date']
-    DOC_TYPES = (
-        ('Q', 'Questionnaire'),
-        ('A', 'Answers'),
-    )
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exetats')
-    name = models.CharField(max_length=255)
-    type = models.CharField(max_length=1, choices=DOC_TYPES,default='Q')
-    link = models.FileField(upload_to='documents/', default='')
-    date = models.DateField()
-
-    def __str__(self):
-        return f'{self.name} ({self.link})'
-
-class File(models.Model):
-    class Meta:
-        ordering =['name']
-    DOC_TYPES = (
-        ('Q', 'Questionnaire'),
-        ('A', 'Answers'),
-    )
-
-    
-    epreuve = models.ForeignKey(Epreuve, on_delete=models.CASCADE, related_name='files')
-    type = models.CharField(max_length=1, choices=DOC_TYPES)
-    name = models.CharField(max_length=200, default="2002")
-    link = models.FileField(upload_to='documents/', default='')
-
-    def __str__(self):
-        return f'{self.name} ({self.get_type_display()})'
-
+        return self.test
