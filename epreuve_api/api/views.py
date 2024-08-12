@@ -1,3 +1,4 @@
+import json
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
@@ -9,9 +10,12 @@ from rest_framework import generics
 from django.db.models import Q
 from epreuve_api import settings
 
-from .models import Section, Course, Test,Grade,SendEmail,ContactMessage
+from .models import *
 from django.core.mail import send_mail, EmailMessage
-from .serializers import SectionSerializer, CourseSerializer, TestSerializer,SectionListSerializer,GradeSerializer,SendEmailSerializer,ContactSerializer,UserSerializer
+from .serializers import *
+
+from api.utils import *
+
 
 class SendEmailViewSet(viewsets.ModelViewSet):
     queryset = SendEmail.objects.all()
@@ -20,25 +24,20 @@ class SendEmailViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            self.perform_create(serializer) # save the data to the database...
-            subject = serializer.validated_data['subject'] #the email subject
-            email = serializer.validated_data['email'] # the email address we setup notification.epreuve@gmail.com
-            message = serializer.validated_data['message'] # the message we want to send to clients 
+        serializer.is_valid(raise_exception=True)
 
-            
-            # Send email
-            send_mail(
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=False,
-            )
-            headers = self.get_success_headers(serializer.data)
-            return Response({'message':'Email sent successfully'},serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        self.perform_create(serializer)
+
+        # Example email sending logic
+        send_mail(
+            subject=serializer.validated_data['subject'],
+            message=serializer.validated_data['message'],
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[serializer.validated_data['email']]
+        )
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def list(self, request, *args, **kwargs):
         return Response({'message': 'This endpoint is for sending contact messages via POST requests.'}, status=status.HTTP_200_OK)
@@ -116,6 +115,7 @@ class SectionViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except Section.DoesNotExist:
             return Response({'error': 'Section not found'}, status=status.HTTP_404_NOT_FOUND)
+        
     @action(detail=False, methods=['get'], url_path='(?P<name>[^/.]+)/(?P<course_name>[^/.]+)/(?P<test>[^/.]+)')
     def get_test(self, request, name, course_name, test):
         search_query = test.lower()
@@ -129,8 +129,6 @@ class SectionViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         return Response({'error': 'Test not found'}, status=status.HTTP_404_NOT_FOUND)
         
-  
-
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
@@ -165,6 +163,7 @@ class TestViewSet(viewsets.ModelViewSet):
             tests = Test.objects.filter(q_objects).distinct()
         serializer = TestSerializer(tests, many=True)
         return Response(serializer.data)
+    
 
 class SectionViewList(viewsets.ViewSet):
     queryset = Section.objects.all()

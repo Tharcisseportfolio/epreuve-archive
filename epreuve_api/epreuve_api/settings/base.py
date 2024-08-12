@@ -2,20 +2,15 @@
 from pathlib import Path
 from datetime import timedelta
 import os
-# import environ
-
-# env = environ.Env()
-# environ.Env.read_env()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "epreuve_api.settings")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = os.environ.get("SECRET_KEY",'epreuveapiapplication')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -68,7 +63,7 @@ ROOT_URLCONF = 'epreuve_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,6 +76,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'epreuve_api.wsgi.application'
 
 
@@ -88,30 +84,16 @@ WSGI_APPLICATION = 'epreuve_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        # 'NAME': os.getenv("DB_NAME"),
-        # 'USER': os.getenv("DB_USER"),
-        # 'PASSWORD': os.getenv("DB_PWD"),
-        # 'HOST': os.getenv("DB_HOST"),
-        # 'PORT': os.getenv("DB_PORT"),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'epreuves',
-#         'USER': 'tharcisse',
-#         'PASSWORD': 'burundi',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -141,17 +123,37 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
+
 
 STATIC_URL = 'static/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' 
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+#setup cookies
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+X_FRAME_OPTIONS = 'DENY'
+SECURE_SSL_REDIRECT = True
+
+#Email Backend
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = os.environ.get('EMAIL_PORT')
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
+#Cors allowed origins for frontend request 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
@@ -159,20 +161,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_ALL_CREDENTIALS = True
 
-#Email sender
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = env('EMAIL_HOST')
-# EMAIL_PORT = env('EMAIL_PORT')
-# EMAIL_USE_TLS = env('EMAIL_USE_TLS')
-# EMAIL_USE_SSL=env('EMAIL_USE_SSL')
-# EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-# RECIPIENT_ADDRESS='tharcissentira@gmail.com'
-
-EMAIL_HOST='smtp.gmail.com'
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_USE_SSL=False
-EMAIL_HOST_USER='notification.epreuve@gmail.com'
-EMAIL_HOST_PASSWORD='fklr lqjp musw yjfj'
-RECIPIENT_ADDRESS = 'tharcissentira@gmail.com'
+#Loggings
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
