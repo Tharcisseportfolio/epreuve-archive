@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 # from .models import *
-from .models import Test, Course, Section,Grade,SendEmail,ContactMessage
+from .models import *
 
 """
 *****************Description****************
@@ -23,11 +23,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class GradeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Grade
-        fields = ['id','grade']
-
 class TestSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
     section = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all())
@@ -45,7 +40,6 @@ class TestSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     tests = TestSerializer(many=True, read_only=True)
     section = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all())
-    grade = serializers.PrimaryKeyRelatedField(queryset=Grade.objects.all())
 
     class Meta:
         model = Course
@@ -54,7 +48,6 @@ class CourseSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['section'] = instance.section.section
-        representation['grade'] = instance.grade.grade
         
         return representation
 

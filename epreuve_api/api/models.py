@@ -27,15 +27,6 @@ class ContactMessage(models.Model):
     def __str__(self):
         return self.subject
 
-class Grade(models.Model):
-    Grade_Choices = (
-        ("3",'3ème Post Fondemental'),
-        ('9','9è Fondemental')
-    )
-    grade = models.CharField(max_length=40,choices=Grade_Choices,null=True)
-
-    def __str__(self):
-        return self.grade
 
 class Section(models.Model):
     section = models.CharField(max_length=100)
@@ -44,7 +35,12 @@ class Section(models.Model):
         return self.section
 
 class Course(models.Model):
-    grade  = models.ForeignKey(Grade,related_name='courses',on_delete=models.DO_NOTHING,null=True)
+    Grade_Choices = (
+        ('3','3ème Post Fondemental'),
+        ('9','9è Fondemental')
+    )
+    grade = models.CharField(max_length=40,choices=Grade_Choices,null=True)
+
     course = models.CharField(max_length=100)
     section = models.ForeignKey(Section, related_name='courses', on_delete=models.CASCADE)
 

@@ -6,7 +6,7 @@ router = DefaultRouter()
 router.register(r'sections', SectionViewSet)
 router.register(r'courses', CourseViewSet)
 router.register(r'epreuves', TestViewSet)
-router.register(r'grades', GradeViewSet)
+
 router.register(r'sections-list', SectionViewList,basename='section-list')
 router.register(r'send-email', SendEmailViewSet, basename='send-email')
 router.register(r'contact', ContactViewSet, basename='contact')

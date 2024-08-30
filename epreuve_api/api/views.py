@@ -9,11 +9,10 @@ from rest_framework import permissions
 from rest_framework import generics
 from django.db.models import Q
 from epreuve_api import settings
+from django.core.mail import send_mail, EmailMessage
 
 from .models import *
-from django.core.mail import send_mail, EmailMessage
 from .serializers import *
-
 from api.utils import *
 
 
@@ -81,15 +80,11 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
 
-class GradeViewSet(viewsets.ModelViewSet):
-    queryset = Grade.objects.all()
-    serializer_class = GradeSerializer
-    permission_classes = []
-    
+
 class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=False, methods=['get'], url_path='(?P<query>[^/.]+)')
     def search_sections(self, request, query):

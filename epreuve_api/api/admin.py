@@ -1,5 +1,5 @@
 from django.contrib import admin
-from api.models import Course,Grade,Section,Test,SendEmail,ContactMessage
+from api.models import *
 
 
 @admin.register(SendEmail)
@@ -13,12 +13,6 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ('subject', 'email', 'message', 'received_at')
     list_filter = ('received_at',)
     search_fields = ('subject', 'email', 'message', 'received_at')
-
-@admin.register(Grade)
-class GradeAdmin(admin.ModelAdmin):
-    list_display = ['id','grade']
-    list_filter = ['grade']
-    search_fields = ['grade']
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
