@@ -48,6 +48,7 @@ class Course(models.Model):
     course = models.CharField(max_length=100)
     section = models.ForeignKey(Section, related_name='courses', on_delete=models.CASCADE)
 
+
     def __str__(self):
         return self.course
 
