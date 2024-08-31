@@ -1,4 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.pyc
+*.pyo
+__pycache__/
+*.sqlite3
+
+# Pytest
+.cache/
+
+# MyPy
+.mypy_cache/
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+__pypackages__/
+
+# Environments
 .env
+<<<<<<< Updated upstream
 __pycache__/
 env/
 .vscode
@@ -35,3 +69,8 @@ staticfiles/
 .settings
 .tmproj
 .idea
+=======
+.env.*
+venv/
+venv.bak/
+>>>>>>> Stashed changes
