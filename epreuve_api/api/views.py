@@ -84,7 +84,7 @@ class CreateUserView(generics.CreateAPIView):
 class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     @action(detail=False, methods=['get'], url_path='(?P<query>[^/.]+)')
     def search_sections(self, request, query):
