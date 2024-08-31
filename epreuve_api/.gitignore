@@ -1,12 +1,12 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+/__pycache__/
 *.py[cod]
 
 # Distribution / packaging
 .Python
-env/
-venv/
-ENV/
+/env/
+/venv/
+/ENV/
 env.bak/
 venv.bak/
 
@@ -28,49 +28,10 @@ __pycache__/
 .mypy_cache/
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
+/__pypackages__/
 
 # Environments
 .env
-<<<<<<< Updated upstream
-__pycache__/
-env/
-.vscode
-__pycache__/
-**/__pycache__/
-
-migrations/
-.DS_Store
-
-env/
-*.pyc
-*.sqlite3
-*.sqlite3*
-db.sqlite3
-dist/
-build/
-*.egg-info/
-run/
-logs/
-/static
-*.pyo
-*.pyd
-*.pyc
-*.sql
-*.log
-*.json
-*.csv
-media/
-staticfiles/
-``
-# OS or Editor folders
-.cache
-.project
-.settings
-.tmproj
-.idea
-=======
 .env.*
-venv/
+/venv/
 venv.bak/
->>>>>>> Stashed changes
